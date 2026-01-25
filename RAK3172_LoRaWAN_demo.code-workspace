@@ -1,0 +1,27 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"*.tcc": "cpp",
+			"ostream": "cpp",
+			"random": "cpp",
+			"compare": "cpp",
+			"cstddef": "cpp",
+			"string_view": "cpp",
+			"system_error": "cpp",
+			"main.h": "c",
+			"array": "cpp",
+			"deque": "cpp",
+			"string": "cpp",
+			"unordered_map": "cpp",
+			"vector": "cpp",
+			"memory": "cpp",
+			"initializer_list": "cpp",
+			"cmath": "cpp"
+		}
+	}
+}
