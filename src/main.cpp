@@ -193,7 +193,6 @@ void radioTimeout(void)
   DEBUG_PRINT("Status before radioReset:");
   radioCheckStatus();
   radioReset();
-  NVIC_SystemReset();
 
   DEBUG_PRINT("Status before radioInit:");
   radioCheckStatus();
@@ -230,8 +229,6 @@ void radioReset(void)
 
   DEBUG_PRINT("reset done");
 
-  // delay(DELAY_BEFORE_CHECKING_STATUS_MS);
-  // radioCheckStatus();
   delay(1000);
 } // radioReset()
 
