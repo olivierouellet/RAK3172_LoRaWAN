@@ -56,20 +56,24 @@ const RadioLibTime_t receiveWindowPadding = 100UL;
 // =============================================================================
 
 // RF Switch Configuration
-
 const uint32_t rfswitch_pin1 = PB8;
 const uint32_t rfswitch_pin2 = PC13;
-
 const uint32_t rfswitch_pin3 = RADIOLIB_NC;
 const uint32_t rfswitch_pin4 = RADIOLIB_NC;
 const uint32_t rfswitch_pin5 = RADIOLIB_NC;
+const bool dio2AsRfSwitch = false;
 
-// Radio Configuration
-const float tcxoVoltage = 3.0F;
+// Clock Configuration
+const bool radioXTAL = false;   // Set to false if using an external TCXO
+const bool tcxoWakeup = true;   // Set to false if using XTAL oscillator
+const float tcxoVoltage = 3.0F; // Set to 0.0F if using XTAL oscillator
+
+// Power Configuration
 const bool useRegulatorLDO = false;
 const int8_t power = 22;
 const float currentLimit = 140.0F;
-const bool dio2AsRfSwitch = false;
-uint8_t batteryLevel = 255;
+
+// Battery level
+uint8_t batteryLevel = 255; // Not supported
 
 #endif // CONFIG_H

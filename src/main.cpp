@@ -81,8 +81,8 @@ void radioInit()
       END_OF_MODE_TABLE,
   };
 
-  radio.XTAL = false;
-  radio.standbyXOSC = true;
+  radio.XTAL = radioXTAL;
+  radio.standbyXOSC = tcxoWakeup;
   stateRadio = RADIOLIB_ERR_NONE;
 
   radio.setRfSwitchTable(rfswitch_pins, rfswitch_table);
