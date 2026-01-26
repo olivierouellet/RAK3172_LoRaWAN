@@ -144,13 +144,17 @@ void loraSendSensor()
   DEBUG_PRINT_VAR("fCntUp : ", fCntUp);
   DEBUG_PRINT_VAR("minTimeUntilUplink : ", minTimeUntilUplink);
 
+  delay(10); // Allow some time after wakeup
   radioWakeup();
+  delay(10); // Allow some time after standby
   DEBUG_PRINT("node.sendReceive()");
   uint32_t txStart = millis();
   stateRadio = node.sendReceive(uplinkPayload, payloadSize, payloadFPort, downlinkPayload,
                                 &downlinkSize, false, &uplinkDetails, &downlinkDetails);
   uint32_t txDuration = millis() - txStart;
+  delay(10); // Allow some time before going to sleep
   radioSleep();
+  delay(10); // Allow some time after sleep
 
   if (stateRadio >= RADIOLIB_ERR_NONE)
   {
