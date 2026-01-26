@@ -136,6 +136,8 @@ void loraSendSensor()
 
   stateRadio = RADIOLIB_ERR_NONE;
 
+  isHSEReady();
+  
   DEBUG_PRINT_VAR("millis (beginning of loraSendSensor): ", millis());
 
   uint32_t fCntUp = node.getFCntUp();
@@ -486,7 +488,10 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
+}
 
+void isHSEReady(void)
+{
   if (!__HAL_RCC_GET_FLAG(RCC_FLAG_HSERDY))
   {
     DEBUG_PRINT("HSE not ready, attempting to start...");

@@ -38,6 +38,7 @@ extern void radioCheckStatus();
 extern void GPIO_Init(void);
 extern void GPIO_Sleep(void);
 extern void SystemClock_Config(void);
+extern void isHSEReady(void);
 extern void stop2Mode(time_t sleepMs);
 
 extern void RTC_Init(void);
