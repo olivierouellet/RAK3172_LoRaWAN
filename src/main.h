@@ -31,6 +31,7 @@ extern void radioInit();
 extern void radioWakeup();
 extern void loraSendSensor();
 extern void radioSleep();
+extern void radioTimeout();
 extern void radioReset();
 extern void radioCheckStatus();
 

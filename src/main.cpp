@@ -163,11 +163,7 @@ void loraSendSensor()
   DEBUG_PRINT_VAR("sendReceive() duration (ms): ", txDuration);
   if (txDuration > MAX_TX_TIME)
   {
-    DEBUG_PRINT("********************* TX TIMEOUT *******************************");
-    delay(DELAY_BEFORE_CHECKING_STATUS_MS);
-    radioCheckStatus();
-    radioReset();
-    radioInit();
+    radioTimeout();
   }
 }
 
@@ -181,6 +177,31 @@ void radioSleep(void)
     DEBUG_PRINT_VAR("radio.sleep() failed", stateDecode(stateRadio));
   }
 } // radioSleep()
+
+void radioTimeout(void)
+{
+  DEBUG_PRINT("********************* TX TIMEOUT *******************************");
+
+  DEBUG_PRINT("Status before radioReset:");
+  radioCheckStatus();
+  radioReset();
+
+  DEBUG_PRINT("Status before radioInit:");
+  radioCheckStatus();
+  radioInit();
+
+  DEBUG_PRINT("Status before loraSendSensor:");
+  radioCheckStatus();
+  loraSendSensor();
+
+  DEBUG_PRINT("Status after loraSendSensor:");
+  radioCheckStatus();
+
+  // Temporary loop to stop logs
+  while (true)
+  {
+  };
+}
 
 void radioReset(void)
 {
@@ -203,15 +224,12 @@ void radioReset(void)
   delay(DELAY_BEFORE_CHECKING_STATUS_MS);
   radioCheckStatus();
 
-  // Temporary loop to stop logs
-  while (true)
-  {
-  };
-
 } // radioReset()
 
 void radioCheckStatus(void)
 {
+  delay(DELAY_BEFORE_CHECKING_STATUS_MS);
+
   DEBUG_PRINT("=== Radio Status ===");
 
   DEBUG_PRINT_VAR("BUSY flag (RFBUSYS): ", LL_PWR_IsActiveFlag_RFBUSYS() ? "SET" : "CLEAR (ok)");
