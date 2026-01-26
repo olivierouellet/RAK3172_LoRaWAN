@@ -490,12 +490,16 @@ void SystemClock_Config(void)
     Error_Handler();
   }
 
-  uint32_t timeout = 100000;
-  while (!__HAL_RCC_GET_FLAG(RCC_FLAG_HSERDY) && timeout--)
-    ;
-  if (timeout == 0)
+  if (!__HAL_RCC_GET_FLAG(RCC_FLAG_HSERDY))
   {
-    DEBUG_PRINT("HSE failed to start!");
+    DEBUG_PRINT("HSE not ready, attempting to start...");
+    uint32_t timeout = 100000;
+    while (!__HAL_RCC_GET_FLAG(RCC_FLAG_HSERDY) && timeout--)
+      ;
+    if (timeout == 0)
+    {
+      DEBUG_PRINT("HSE failed to start!");
+    }
   }
   delay(10);
 }
