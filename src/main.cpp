@@ -185,6 +185,7 @@ void radioTimeout(void)
   DEBUG_PRINT("Status before radioReset:");
   radioCheckStatus();
   radioReset();
+  NVIC_SystemReset();
 
   DEBUG_PRINT("Status before radioInit:");
   radioCheckStatus();
@@ -221,9 +222,9 @@ void radioReset(void)
 
   DEBUG_PRINT("reset done");
 
-  delay(DELAY_BEFORE_CHECKING_STATUS_MS);
-  radioCheckStatus();
-
+  //delay(DELAY_BEFORE_CHECKING_STATUS_MS);
+  //radioCheckStatus();
+  delay(1000);
 } // radioReset()
 
 void radioCheckStatus(void)
@@ -480,6 +481,13 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
+
+  uint32_t timeout = 100000;
+  while (!__HAL_RCC_GET_FLAG(RCC_FLAG_HSERDY) && timeout--);
+  if (timeout == 0) {
+    DEBUG_PRINT("HSE failed to start!");
+  }
+  delay(10);
 }
 
 void GPIO_Init(void)
