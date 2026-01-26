@@ -136,6 +136,8 @@ void loraSendSensor()
 
   stateRadio = RADIOLIB_ERR_NONE;
 
+  DEBUG_PRINT_VAR("millis (beginning of loraSendSensor): ", millis());
+
   uint32_t fCntUp = node.getFCntUp();
   uint32_t minTimeUntilUplink = (uint32_t)node.timeUntilUplink();
 
@@ -159,6 +161,8 @@ void loraSendSensor()
   {
     DEBUG_PRINT_VAR("Uplink failed : ", stateDecode(stateRadio));
   }
+
+  DEBUG_PRINT_VAR("millis (end of loraSendSensor): ", millis());
 
   DEBUG_PRINT_VAR("sendReceive() duration (ms): ", txDuration);
   if (txDuration > MAX_TX_TIME)
@@ -222,8 +226,8 @@ void radioReset(void)
 
   DEBUG_PRINT("reset done");
 
-  //delay(DELAY_BEFORE_CHECKING_STATUS_MS);
-  //radioCheckStatus();
+  // delay(DELAY_BEFORE_CHECKING_STATUS_MS);
+  // radioCheckStatus();
   delay(1000);
 } // radioReset()
 
@@ -483,8 +487,10 @@ void SystemClock_Config(void)
   }
 
   uint32_t timeout = 100000;
-  while (!__HAL_RCC_GET_FLAG(RCC_FLAG_HSERDY) && timeout--);
-  if (timeout == 0) {
+  while (!__HAL_RCC_GET_FLAG(RCC_FLAG_HSERDY) && timeout--)
+    ;
+  if (timeout == 0)
+  {
     DEBUG_PRINT("HSE failed to start!");
   }
   delay(10);
