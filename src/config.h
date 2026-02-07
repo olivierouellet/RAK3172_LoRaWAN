@@ -69,8 +69,8 @@ const bool tcxoWakeup = true;   // Set to false if using XTAL oscillator
 const float tcxoVoltage = 3.0F; // Set to 0.0F if using XTAL oscillator
 
 // Power Configuration
-const bool useRegulatorLDO = false;
-const int8_t power = 22;
+const bool useRegulatorLDO = true;
+const int8_t power = 18;
 const float currentLimit = 140.0F;
 
 // Battery level
