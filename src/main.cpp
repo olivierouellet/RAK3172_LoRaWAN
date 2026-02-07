@@ -134,7 +134,7 @@ void radioWakeup(void)
     DEBUG_PRINT_VAR("radio.standby() failed", stateDecode(stateRadio));
   }
 
-  radioCheckStatus();
+  // radioCheckStatus();
 
 } // radioWakeup()
 
@@ -167,11 +167,11 @@ void loraSendSensor()
     DEBUG_PRINT_VAR("Uplink failed : ", stateDecode(stateRadio));
   }
 
-  DEBUG_PRINT("------------------main.cpp---------------------    ");
-  DEBUG_PRINT_VAR("millis start:     ", txStart);
-  DEBUG_PRINT_VAR("millis end:       ", txEnd);
-  DEBUG_PRINT_VAR("sendReceive ms:   ", txDuration);
-  DEBUG_PRINT("---------------------------------------    ");
+  // DEBUG_PRINT("------------------main.cpp---------------------    ");
+  // DEBUG_PRINT_VAR("millis start:     ", txStart);
+  // DEBUG_PRINT_VAR("millis end:       ", txEnd);
+  // DEBUG_PRINT_VAR("sendReceive ms:   ", txDuration);
+  // DEBUG_PRINT("---------------------------------------    ");
 
   if (txDuration > MAX_TX_TIME)
   {
@@ -244,10 +244,10 @@ void radioCheckStatus(void)
 
   DEBUG_PRINT_VAR("BUSY flag (RFBUSYS): ", LL_PWR_IsActiveFlag_RFBUSYS() ? "SET" : "CLEAR (ok)");
   DEBUG_PRINT_VAR("BUSY flag (RFBUSYMS): ", LL_PWR_IsActiveFlag_RFBUSYMS() ? "SET (ok)" : "CLEAR");
-  DEBUG_PRINT_VAR("SubGHz SPI Clock: ",
-                  __HAL_RCC_SUBGHZSPI_IS_CLK_ENABLED() ? "ENABLED (ok)" : "DISABLED");
   DEBUG_PRINT_VAR("SUBGHZ IRQ Pending: ",
                   HAL_NVIC_GetPendingIRQ(SUBGHZ_Radio_IRQn) ? "YES" : "NO (ok)");
+  DEBUG_PRINT_VAR("SubGHz SPI Clock: ",
+                  __HAL_RCC_SUBGHZSPI_IS_CLK_ENABLED() ? "ENABLED (ok)" : "DISABLED");
 
   // Send GET_STATUS command (0xC0) using SPI
   SubGhz.SPI.beginTransaction(SubGhz.spi_settings);
@@ -494,6 +494,7 @@ void SystemClock_Config(void)
   __HAL_RCC_GPIOC_CLK_ENABLE();
 
   isHSEReady();
+
   __HAL_RCC_SUBGHZSPI_CLK_ENABLE();
   __HAL_RCC_SUBGHZ_CLK_ENABLE();
 }
@@ -569,7 +570,6 @@ void stop2Mode(time_t sleepMs)
   SystemClock_Config();
   HAL_ResumeTick();
   GPIO_Init();
-
   Debug_Setup();
 
   DEBUG_PRINT("stop2Mode() end");
