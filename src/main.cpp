@@ -24,6 +24,7 @@ int main(void)
   HAL_Init();
 
   SystemClock_Config();
+  HAL_ResumeTick();
   GPIO_Init();
   Debug_Setup();
   RTC_Init();
@@ -36,8 +37,12 @@ int main(void)
   return 0;
 }
 
+
 void setup()
 {
+  dwt_init();
+  radio.reset();
+  delay(4);
   radioInit();
 
   node.setADR(enableADR);
@@ -62,6 +67,7 @@ void setup()
 
 void loop()
 {
+  // dwt_init();
   int16_t test = 1024;
   uplinkPayload[0] = highByte(test);
   uplinkPayload[1] = lowByte(test);
@@ -81,9 +87,12 @@ void radioInit()
       END_OF_MODE_TABLE,
   };
 
-  radio.XTAL = radioXTAL;
-  radio.standbyXOSC = tcxoWakeup;
   stateRadio = RADIOLIB_ERR_NONE;
+
+  radio.XTAL = radioXTAL;
+  radio.setTCXO(tcxoVoltage);
+  radio.standbyXOSC = tcxoWakeup;
+
 
   radio.setRfSwitchTable(rfswitch_pins, rfswitch_table);
 
@@ -107,27 +116,26 @@ void radioInit()
   {
     DEBUG_PRINT_VAR("radio.setDio2AsRfSwitch failed", stateDecode(stateRadio));
   }
+
   stateRadio = radio.setCRC(crcLength);
   if (stateRadio != RADIOLIB_ERR_NONE)
   {
     DEBUG_PRINT_VAR("radio.setCRC failed", stateDecode(stateRadio));
   }
-
 } // loraRadioInit()
 
 void radioWakeup(void)
 {
   DEBUG_PRINT("radioWakeup() begin");
 
-  __HAL_RCC_SUBGHZSPI_CLK_ENABLE();
-
   stateRadio = radio.standby(RADIOLIB_SX126X_STANDBY_XOSC);
   if (stateRadio != RADIOLIB_ERR_NONE)
   {
     DEBUG_PRINT_VAR("radio.standby() failed", stateDecode(stateRadio));
   }
-  delay(DELAY_BEFORE_CHECKING_STATUS_MS);
+
   radioCheckStatus();
+
 } // radioWakeup()
 
 void loraSendSensor()
@@ -136,27 +144,18 @@ void loraSendSensor()
 
   stateRadio = RADIOLIB_ERR_NONE;
 
-  isHSEReady();
-  
-  DEBUG_PRINT_VAR("millis (beginning of loraSendSensor): ", millis());
+  DEBUG_PRINT_VAR("getLastToA :      ", node.getLastToA());
+  DEBUG_PRINT_VAR("getFCntUp :       ", node.getFCntUp());
+  DEBUG_PRINT_VAR("timeUntilUplink : ", node.timeUntilUplink());
 
-  uint32_t fCntUp = node.getFCntUp();
-  uint32_t minTimeUntilUplink = (uint32_t)node.timeUntilUplink();
-
-  DEBUG_PRINT_VAR("fCntUp : ", fCntUp);
-  DEBUG_PRINT_VAR("minTimeUntilUplink : ", minTimeUntilUplink);
-
-  delay(10); // Allow some time after wakeup
   radioWakeup();
-  delay(10); // Allow some time after standby
   DEBUG_PRINT("node.sendReceive()");
   uint32_t txStart = millis();
   stateRadio = node.sendReceive(uplinkPayload, payloadSize, payloadFPort, downlinkPayload,
                                 &downlinkSize, false, &uplinkDetails, &downlinkDetails);
-  uint32_t txDuration = millis() - txStart;
-  delay(10); // Allow some time before going to sleep
+  uint32_t txEnd = millis();
+  uint32_t txDuration = txEnd - txStart;
   radioSleep();
-  delay(10); // Allow some time after sleep
 
   if (stateRadio >= RADIOLIB_ERR_NONE)
   {
@@ -168,9 +167,12 @@ void loraSendSensor()
     DEBUG_PRINT_VAR("Uplink failed : ", stateDecode(stateRadio));
   }
 
-  DEBUG_PRINT_VAR("millis (end of loraSendSensor): ", millis());
+  DEBUG_PRINT("------------------main.cpp---------------------    ");
+  DEBUG_PRINT_VAR("millis start:     ", txStart);
+  DEBUG_PRINT_VAR("millis end:       ", txEnd);
+  DEBUG_PRINT_VAR("sendReceive ms:   ", txDuration);
+  DEBUG_PRINT("---------------------------------------    ");
 
-  DEBUG_PRINT_VAR("sendReceive() duration (ms): ", txDuration);
   if (txDuration > MAX_TX_TIME)
   {
     radioTimeout();
@@ -231,7 +233,7 @@ void radioReset(void)
 
   DEBUG_PRINT("reset done");
 
-  delay(1000);
+  delay(100);
 } // radioReset()
 
 void radioCheckStatus(void)
@@ -469,7 +471,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.LSIDiv = RCC_LSI_DIV128;
   RCC_OscInitStruct.MSIState = RCC_MSI_ON;
   RCC_OscInitStruct.MSICalibrationValue = RCC_MSICALIBRATION_DEFAULT;
-  RCC_OscInitStruct.MSIClockRange = RCC_MSIRANGE_6;
+  RCC_OscInitStruct.MSIClockRange = RCC_MSIRANGE_11;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
@@ -488,6 +490,12 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
+  __HAL_RCC_GPIOB_CLK_ENABLE();
+  __HAL_RCC_GPIOC_CLK_ENABLE();
+
+  isHSEReady();
+  __HAL_RCC_SUBGHZSPI_CLK_ENABLE();
+  __HAL_RCC_SUBGHZ_CLK_ENABLE();
 }
 
 void isHSEReady(void)
@@ -516,9 +524,11 @@ void GPIO_Init(void)
 
   // Do not configure PA13 and PA14 (SWDIO and SWCLK)
   GPIO_InitStruct.Pin = GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_2 | GPIO_PIN_3 |
-                        GPIO_PIN_4 | GPIO_PIN_5 | GPIO_PIN_6 | GPIO_PIN_7 |
+                        // GPIO_PIN_4 | GPIO_PIN_5 | GPIO_PIN_6 | GPIO_PIN_7 |
                         GPIO_PIN_8 | GPIO_PIN_9 | GPIO_PIN_10 | GPIO_PIN_11 |
-                        GPIO_PIN_12 | GPIO_PIN_15;
+                        // GPIO_PIN_12 | GPIO_PIN_15;
+                        GPIO_PIN_15;
+
   GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
@@ -526,7 +536,8 @@ void GPIO_Init(void)
   // Do not configure PB8 and PC13 (SubGHz)
   GPIO_InitStruct.Pin = GPIO_PIN_3 | GPIO_PIN_4 | GPIO_PIN_5 |
                         GPIO_PIN_6 | GPIO_PIN_7 |
-                        GPIO_PIN_0 | GPIO_PIN_2 | GPIO_PIN_12;
+                        //GPIO_PIN_0 | GPIO_PIN_2 | GPIO_PIN_12;
+                        GPIO_PIN_2 | GPIO_PIN_12;
   GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
@@ -558,6 +569,7 @@ void stop2Mode(time_t sleepMs)
   SystemClock_Config();
   HAL_ResumeTick();
   GPIO_Init();
+
   Debug_Setup();
 
   DEBUG_PRINT("stop2Mode() end");
@@ -709,8 +721,7 @@ void Debug_Setup()
   while (!Serial)
   {
   }
-  delay(1000);
-  DEBUG_PRINT("setup() starting");
+  DEBUG_PRINT("Debug_Setup() started");
 }
 
 String stateDecode(const int16_t result)
