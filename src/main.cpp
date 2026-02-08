@@ -40,7 +40,8 @@ int main(void)
 
 void setup()
 {
-  dwt_init();
+  isHSEReady();
+
   radio.reset();
   delay(4);
   radioInit();
@@ -491,8 +492,6 @@ void SystemClock_Config(void)
   }
   __HAL_RCC_GPIOB_CLK_ENABLE();
   __HAL_RCC_GPIOC_CLK_ENABLE();
-
-  isHSEReady();
 
   __HAL_RCC_SUBGHZSPI_CLK_ENABLE();
   __HAL_RCC_SUBGHZ_CLK_ENABLE();
