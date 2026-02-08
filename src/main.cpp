@@ -67,7 +67,6 @@ void setup()
 
 void loop()
 {
-  // dwt_init();
   int16_t test = 1024;
   uplinkPayload[0] = highByte(test);
   uplinkPayload[1] = lowByte(test);
