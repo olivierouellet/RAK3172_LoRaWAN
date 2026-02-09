@@ -42,8 +42,6 @@ void setup()
 {
   isHSEReady();
 
-  radio.reset();
-  delay(4);
   radioInit();
 
   node.setADR(enableADR);
@@ -89,11 +87,6 @@ void radioInit()
 
   stateRadio = RADIOLIB_ERR_NONE;
 
-  radio.XTAL = radioXTAL;
-  radio.setTCXO(tcxoVoltage);
-  radio.standbyXOSC = tcxoWakeup;
-
-
   radio.setRfSwitchTable(rfswitch_pins, rfswitch_table);
 
   DEBUG_PRINT("radio.begin() starting");
@@ -104,6 +97,10 @@ void radioInit()
   {
     DEBUG_PRINT("radio.begin failed");
   }
+
+  //radio.XTAL = radioXTAL;
+  //radio.setTCXO(tcxoVoltage);
+  radio.standbyXOSC = tcxoWakeup;
 
   stateRadio = radio.setCurrentLimit(currentLimit);
   if (stateRadio != RADIOLIB_ERR_NONE)
