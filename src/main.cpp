@@ -62,6 +62,15 @@ void setup()
   {
     DEBUG_PRINT("node.activateOTAA failed ");
   }
+  
+/*
+  stateRadio = node.setTxPower(power);
+  if (stateRadio != RADIOLIB_ERR_NONE)
+  {
+    DEBUG_PRINT_VAR("node.setTxPower 2 : ", stateDecode(stateRadio));
+  }
+*/
+
 } // setup()
 
 void loop()
